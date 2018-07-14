@@ -26,7 +26,7 @@ $(document).ready(function() {
         };
         this.generate = function (count, size, maxWight) {
             for (var i = 0; i < count; i++) {
-                this.add(parseInt(Math.random() * (maxWight - 1) + 1, 10), parseInt(Math.random() * size, 10), parseInt(Math.random() * size, 10), 0);
+                this.add(parseInt(Math.random() * (maxWight) + 1, 10), parseInt(Math.random() * size, 10), parseInt(Math.random() * size, 10), 0);
             }
 
             this.com = this.centerOfMass(this.corpuscles);
@@ -92,9 +92,13 @@ $(document).ready(function() {
             var ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#ffffff";
             for (var i = 0; i < this.corpuscles.length; i++) {
+                ctx.fillStyle = "#ffffff";
                 ctx.fillRect(this.corpuscles[i].x, this.corpuscles[i].y, 10, 10);
+                ctx.fillStyle = "#00ff00";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillText(this.corpuscles[i].m, this.corpuscles[i].x, this.corpuscles[i].y);
             }
 
             if (renderCenterOfMass === true) {
@@ -115,9 +119,9 @@ $(document).ready(function() {
     world = new Universe();
 
     console.log('Universe ready for build');
-    world.generate(10, 600, 2);
+    world.generate(50, 600, 2);
     console.log(world);
 
-    world.slowing = 10;
-    world.run(10, true);
+    world.slowing = 10000;
+    world.run(10, false);
 });
