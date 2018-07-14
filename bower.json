@@ -1,0 +1,29 @@
+{
+  "name": "Corpuscle world",
+  "description": "Corpuscle world",
+  "main": [],
+  "dependencies": {
+    "jquery": "^3.3.1"
+  },
+  "devDependencies": {},
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "physics"
+  ],
+  "authors": [
+    "met-mw <mmetrjuk@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "private": true
+}
