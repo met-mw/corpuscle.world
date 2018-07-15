@@ -20,6 +20,7 @@ $(document).ready(function() {
         this.corpuscles = [];
         this.com = null;
         this.slowing = 1;
+        this.privateComs = [];
         this.add = function (m, x, y, z) {
             this.corpuscles.push(new Corpuscle(m, x ,y ,z));
             this.com = this.centerOfMass(this.corpuscles);
@@ -44,17 +45,37 @@ $(document).ready(function() {
 
             return {x: x_m_sum / m_sum, y: y_m_sum / m_sum, m: m_sum};
         };
+        this.permutation = function (corpuscles) {
+            var permutations = [],
+                permutation = [];
+            for (var i = 0; i < corpuscles.length; i++) {
+                permutation.push(corpuscles[i]);
+            }
 
+            permutations.push(permutation);
+        };
         this.update = function () {
+            var depthOfParticularCase = 0;
+
+            this.privateComs = [];
+            while (depthOfParticularCase < this.corpuscles.length) {
+                this.privateComs.push(this.centerOfMass(this.corpuscles.slice(0, this.corpuscles.length - depthOfParticularCase)));
+                depthOfParticularCase++;
+            }
+
             for (var i = 0; i < this.corpuscles.length; i++) {
-                var depthOfParticularCase = 0;
-                while (depthOfParticularCase <= this.corpuscles.length) {
-                    console.log(depthOfParticularCase);
-                    var com = this.centerOfMass(this.corpuscles.slice(0, this.corpuscles.length - 1 - depthOfParticularCase)),
+                for (var j = 0; j < this.privateComs.length; j++) {
+                    var com = this.privateComs[j],
                         rx = Math.abs(this.corpuscles[i].x - com.x),
                         ry = Math.abs(this.corpuscles[i].y - com.y),
-                        r = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2)),
-                        F = this.corpuscles[i].m * com.m / Math.pow(r, 2) * r;
+                        r = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2));
+
+                    if (r === 0) {
+                        r = 1;
+                    }
+                    var F = com.m / (r * this.corpuscles[i].m);
+
+                    console.log(F);
 
                     if (rx > ry) {
                         this.corpuscles[i].inertion.vectorX = 1;
@@ -78,8 +99,6 @@ $(document).ready(function() {
                     } else if (this.corpuscles[i].y > com.y) {
                         this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY - F * this.corpuscles[i].m * this.corpuscles[i].inertion.vectorY;
                     }
-
-                    depthOfParticularCase++;
                 }
 
                 this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX / this.slowing;
@@ -104,6 +123,11 @@ $(document).ready(function() {
             if (renderCenterOfMass === true) {
                 ctx.fillStyle = "#ff0000";
                 ctx.fillRect(this.com.x, this.com.y, 10, 10);
+
+                ctx.fillStyle = "#ffff00";
+                for (i = 1; i < this.privateComs.length; i++) {
+                    ctx.fillRect(this.privateComs[i].x, this.privateComs[i].y, 10, 10);
+                }
             }
         };
         this.run = function (interval, renderCenterOfMass) {
@@ -119,9 +143,13 @@ $(document).ready(function() {
     world = new Universe();
 
     console.log('Universe ready for build');
-    world.generate(50, 600, 2);
+    world.generate(50, 600, 10);
+    // world.add(2, 100, 100, 0);
+    // world.add(2, 500, 500, 0);
+    // world.add(2, 500, 100, 0);
+    // world.add(3, 100, 500, 0);
     console.log(world);
 
-    world.slowing = 10000;
+    world.slowing = 1000;
     world.run(10, false);
 });
