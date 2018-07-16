@@ -84,50 +84,34 @@ $(document).ready(function() {
                         continue;
                     }
 
-                    // var alreadyUsed = false;
-                    // for (var k = i; k >= 0; k--) {
-                    //     if (!(i in this.privateComs[j].components)) {
-                    //
-                    //     }
-                    // }
-
                     var com = this.privateComs[j],
                         rx = Math.abs(this.corpuscles[i].x - com.x),
                         ry = Math.abs(this.corpuscles[i].y - com.y),
                         r = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2));
 
-                    if (r < this.corpuscles[i].m * 2) {
-                        continue;
-                    }
+                    // if (r < this.corpuscles[i].m * 10) {
+                    //     continue;
+                    // }
 
                     var F = (com.m - this.corpuscles[i].m) / (Math.pow(r, 2) * this.corpuscles[i].m) / r;
 
-                    if (rx > ry) {
-                        this.corpuscles[i].inertion.vectorX = 1;
-                        this.corpuscles[i].inertion.vectorY = rx / 10000 * ry;
-                    } else if (rx < ry) {
-                        this.corpuscles[i].inertion.vectorX = ry / 10000 * rx;
-                        this.corpuscles[i].inertion.vectorY = 1;
-                    } else {
-                        this.corpuscles[i].inertion.vectorX = 1;
-                        this.corpuscles[i].inertion.vectorY = 1;
-                    }
+                    this.corpuscles[i].inertion.vectorX = (100 - (100 * ry / r)) / 100;
+                    this.corpuscles[i].inertion.vectorY = (100 - (100 * rx / r)) / 100;
 
                     if (this.corpuscles[i].x < com.x) {
-                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX + F * this.corpuscles[i].inertion.vectorX;
+                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX + F;
                     } else if (this.corpuscles[i].x > com.x) {
-                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX - F * this.corpuscles[i].inertion.vectorX;
+                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX - F;
                     }
 
                     if (this.corpuscles[i].y < com.y) {
-                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY + F * this.corpuscles[i].inertion.vectorY;
+                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY + F;
                     } else if (this.corpuscles[i].y > com.y) {
-                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY - F * this.corpuscles[i].inertion.vectorY;
+                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY - F;
                     }
                 }
-
-                this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX * this.speed;
-                this.corpuscles[i].y = this.corpuscles[i].y + this.corpuscles[i].inertion.aY * this.speed;
+                this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX * this.corpuscles[i].inertion.vectorX * this.speed;
+                this.corpuscles[i].y = this.corpuscles[i].y + this.corpuscles[i].inertion.aY * this.corpuscles[i].inertion.vectorY * this.speed;
             }
 
             // this.com = this.centerOfMass(this.corpuscles);
@@ -187,8 +171,12 @@ $(document).ready(function() {
     world = new Universe();
 
     console.log('Universe ready for build');
-    world.generate(10, 600, 100);
+    world.generate(4, 600, 100);
+    //
+    // world.add(12, 50, 200, 0);
+    // world.add(26, 350, 300, 0);
+    // world.add(18, 150, 250, 0);
 
-    world.speed = 10;
+    world.speed = 1000;
     world.run(10, true);
 });
