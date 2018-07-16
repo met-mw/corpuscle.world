@@ -186,7 +186,7 @@ $(document).ready(function() {
     world = new Universe();
 
     console.log('Universe ready for build');
-    world.generate(10, 600, 10);
+    world.generate(10, 600, 100);
     // world.add(10, 290, 300, 0);
     // world.add(2, 310, 300, 0);
     // world.add(4, 150, 200, 0);
