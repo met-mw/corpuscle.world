@@ -99,7 +99,7 @@ $(document).ready(function() {
                         continue;
                     }
 
-                    var F = com.m * this.corpuscles[i].m / (Math.pow(r, 2) * this.corpuscles[i].m) / r;
+                    var F = (com.m - this.corpuscles[i].m) * this.corpuscles[i].m / (Math.pow(r, 2) * this.corpuscles[i].m) / r;
 
                     if (rx > ry) {
                         this.corpuscles[i].inertion.vectorX = 1;
@@ -186,7 +186,7 @@ $(document).ready(function() {
     world = new Universe();
 
     console.log('Universe ready for build');
-    world.generate(10, 600, 50);
+    world.generate(3, 600, 50);
     // world.add(10, 290, 300, 0);
     // world.add(2, 310, 300, 0);
     // world.add(4, 150, 200, 0);
