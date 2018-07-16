@@ -99,7 +99,7 @@ $(document).ready(function() {
                         continue;
                     }
 
-                    var F = (com.m - this.corpuscles[i].m) * this.corpuscles[i].m / (Math.pow(r, 2) * this.corpuscles[i].m) / r;
+                    var F = (com.m - this.corpuscles[i].m) / (Math.pow(r, 2) * this.corpuscles[i].m) / r;
 
                     if (rx > ry) {
                         this.corpuscles[i].inertion.vectorX = 1;
