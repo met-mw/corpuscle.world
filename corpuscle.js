@@ -19,7 +19,7 @@ $(document).ready(function() {
     Universe = function () {
         this.corpuscles = [];
         this.com = null;
-        this.slowing = 1;
+        this.speed = 1;
         this.privateComs = [];
         this.add = function (m, x, y, z) {
             this.corpuscles.push(new Corpuscle(m, x ,y ,z));
@@ -76,6 +76,7 @@ $(document).ready(function() {
                 // }
                 this.privateComs.push(this.centerOfMass(this.permutations[i]));
             }
+            this.com = this.centerOfMass(this.corpuscles);
 
             for (i = 0; i < this.corpuscles.length; i++) {
                 for (var j = 0; j < this.privateComs.length; j++) {
@@ -125,8 +126,8 @@ $(document).ready(function() {
                     }
                 }
 
-                this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX * (1 / this.slowing);
-                this.corpuscles[i].y = this.corpuscles[i].y + this.corpuscles[i].inertion.aY * (1 / this.slowing);
+                this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX * this.speed;
+                this.corpuscles[i].y = this.corpuscles[i].y + this.corpuscles[i].inertion.aY * this.speed;
             }
 
             // this.com = this.centerOfMass(this.corpuscles);
@@ -149,12 +150,12 @@ $(document).ready(function() {
             }
 
             if (renderCenterOfMass === true) {
-                // ctx.textAlign = "center";
-                // ctx.textBaseline = "bottom";
-                // ctx.fillStyle = "#ff0000";
-                // ctx.fillRect(this.com.x - 5, this.com.y - 5, 10, 10);
-                // ctx.fillStyle = "#00ff00";
-                // ctx.fillText(this.com.m, this.com.x, this.com.y);
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(this.com.x - 5, this.com.y - 5, 10, 10);
+                ctx.fillStyle = "#00ff00";
+                ctx.fillText(this.com.m, this.com.x, this.com.y);
                 //
                 // ctx.strokeStyle = "#00ff00";
                 // ctx.beginPath();
@@ -187,13 +188,7 @@ $(document).ready(function() {
 
     console.log('Universe ready for build');
     world.generate(10, 600, 100);
-    // world.add(10, 290, 300, 0);
-    // world.add(2, 310, 300, 0);
-    // world.add(4, 150, 200, 0);
-    // world.add(4, 250, 300, 0);
-    // world.add(4, 350, 400, 0);
-    // world.add(4, 450, 500, 0);
 
-    world.slowing = 1;
+    world.speed = 10;
     world.run(10, true);
 });
