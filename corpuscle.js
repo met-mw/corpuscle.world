@@ -35,47 +35,71 @@ $(document).ready(function() {
         this.centerOfMass = function (corpuscles) {
             var x_m_sum = 0,
                 y_m_sum = 0,
-                m_sum = 0;
+                m_sum = 0,
+                components = [];
 
             for (var i = 0; i < corpuscles.length; i++) {
                 x_m_sum = x_m_sum + corpuscles[i].x * corpuscles[i].m;
                 y_m_sum = y_m_sum + corpuscles[i].y * corpuscles[i].m;
                 m_sum = m_sum + corpuscles[i].m;
+                components.push(i);
             }
 
-            return {x: x_m_sum / m_sum, y: y_m_sum / m_sum, m: m_sum};
+            return {x: x_m_sum / m_sum, y: y_m_sum / m_sum, m: m_sum, components: components};
         };
-        this.permutation = function (corpuscles) {
-            var permutations = [],
-                permutation = [];
-            for (var i = 0; i < corpuscles.length; i++) {
-                permutation.push(corpuscles[i]);
-            }
+        this.permutations = [];
+        this.permutation = function () {
+            var self = this;
+            const arr = this.corpuscles;
+            const fn = (arr) => {
+                if (arr.length === 1) {
+                    return [arr];
+                } else {
+                    let subArr = fn(arr.slice(1));
+                    return subArr.concat(subArr.map(e => e.concat(arr[0])), [[arr[0]]]);
+                }
+            };
 
-            permutations.push(permutation);
+            this.permutations = [];
+            fn(arr).forEach(function(res){
+                if (res.length > 1) {
+                    self.permutations.push(res);
+                }
+            });
         };
         this.update = function () {
-            var depthOfParticularCase = 0;
-
+            this.permutation();
             this.privateComs = [];
-            while (depthOfParticularCase < this.corpuscles.length) {
-                this.privateComs.push(this.centerOfMass(this.corpuscles.slice(0, this.corpuscles.length - depthOfParticularCase)));
-                depthOfParticularCase++;
+            for (var i = 0; i < this.permutations.length; i++) {
+                // if (this.corpuscles.length !== 2 && this.permutations[i].length === this.corpuscles.length) {
+                //     continue;
+                // }
+                this.privateComs.push(this.centerOfMass(this.permutations[i]));
             }
 
-            for (var i = 0; i < this.corpuscles.length; i++) {
+            for (i = 0; i < this.corpuscles.length; i++) {
                 for (var j = 0; j < this.privateComs.length; j++) {
+                    if (!(i in this.privateComs[j].components)) {
+                        continue;
+                    }
+
+                    // var alreadyUsed = false;
+                    // for (var k = i; k >= 0; k--) {
+                    //     if (!(i in this.privateComs[j].components)) {
+                    //
+                    //     }
+                    // }
+
                     var com = this.privateComs[j],
                         rx = Math.abs(this.corpuscles[i].x - com.x),
                         ry = Math.abs(this.corpuscles[i].y - com.y),
                         r = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2));
 
-                    if (r === 0) {
-                        r = 1;
+                    if (r < this.corpuscles[i].m * 2) {
+                        continue;
                     }
-                    var F = com.m / (r * this.corpuscles[i].m);
 
-                    console.log(F);
+                    var F = com.m * this.corpuscles[i].m / (Math.pow(r, 2) * this.corpuscles[i].m) / r;
 
                     if (rx > ry) {
                         this.corpuscles[i].inertion.vectorX = 1;
@@ -89,23 +113,23 @@ $(document).ready(function() {
                     }
 
                     if (this.corpuscles[i].x < com.x) {
-                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX + F * this.corpuscles[i].m * this.corpuscles[i].inertion.vectorX;
+                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX + F * this.corpuscles[i].inertion.vectorX;
                     } else if (this.corpuscles[i].x > com.x) {
-                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX - F * this.corpuscles[i].m * this.corpuscles[i].inertion.vectorX;
+                        this.corpuscles[i].inertion.aX = this.corpuscles[i].inertion.aX - F * this.corpuscles[i].inertion.vectorX;
                     }
 
                     if (this.corpuscles[i].y < com.y) {
-                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY + F * this.corpuscles[i].m * this.corpuscles[i].inertion.vectorY;
+                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY + F * this.corpuscles[i].inertion.vectorY;
                     } else if (this.corpuscles[i].y > com.y) {
-                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY - F * this.corpuscles[i].m * this.corpuscles[i].inertion.vectorY;
+                        this.corpuscles[i].inertion.aY = this.corpuscles[i].inertion.aY - F * this.corpuscles[i].inertion.vectorY;
                     }
                 }
 
-                this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX / this.slowing;
-                this.corpuscles[i].y = this.corpuscles[i].y + this.corpuscles[i].inertion.aY / this.slowing;
+                this.corpuscles[i].x = this.corpuscles[i].x + this.corpuscles[i].inertion.aX * (1 / this.slowing);
+                this.corpuscles[i].y = this.corpuscles[i].y + this.corpuscles[i].inertion.aY * (1 / this.slowing);
             }
 
-            this.com = this.centerOfMass(this.corpuscles);
+            // this.com = this.centerOfMass(this.corpuscles);
         };
         this.render = function (canvas, renderCenterOfMass) {
             var ctx = canvas.getContext("2d");
@@ -113,7 +137,11 @@ $(document).ready(function() {
 
             for (var i = 0; i < this.corpuscles.length; i++) {
                 ctx.fillStyle = "#ffffff";
-                ctx.fillRect(this.corpuscles[i].x, this.corpuscles[i].y, 10, 10);
+                var radius = this.corpuscles[i].m / 2;
+                if (radius > 5) {
+                    radius = 5;
+                }
+                ctx.fillRect(this.corpuscles[i].x - radius, this.corpuscles[i].y - radius, radius * 2, radius * 2);
                 ctx.fillStyle = "#00ff00";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "bottom";
@@ -121,12 +149,27 @@ $(document).ready(function() {
             }
 
             if (renderCenterOfMass === true) {
-                ctx.fillStyle = "#ff0000";
-                ctx.fillRect(this.com.x, this.com.y, 10, 10);
+                // ctx.textAlign = "center";
+                // ctx.textBaseline = "bottom";
+                // ctx.fillStyle = "#ff0000";
+                // ctx.fillRect(this.com.x - 5, this.com.y - 5, 10, 10);
+                // ctx.fillStyle = "#00ff00";
+                // ctx.fillText(this.com.m, this.com.x, this.com.y);
+                //
+                // ctx.strokeStyle = "#00ff00";
+                // ctx.beginPath();
+                // for (i = 0; i < this.corpuscles.length; i++) {
+                //     ctx.strokeWidth = this.corpuscles[i].m;
+                //     ctx.moveTo(this.com.x, this.com.y);
+                //     ctx.lineTo(this.corpuscles[i].x, this.corpuscles[i].y);
+                // }
+                // ctx.stroke();
 
-                ctx.fillStyle = "#ffff00";
-                for (i = 1; i < this.privateComs.length; i++) {
-                    ctx.fillRect(this.privateComs[i].x, this.privateComs[i].y, 10, 10);
+                for (i = 0; i < this.privateComs.length; i++) {
+                    ctx.fillStyle = "#ffff00";
+                    ctx.fillRect(this.privateComs[i].x, this.privateComs[i].y, 3, 3);
+                    ctx.fillStyle = "#00ff00";
+                    ctx.fillText(this.privateComs[i].m, this.privateComs[i].x, this.privateComs[i].y);
                 }
             }
         };
@@ -143,13 +186,14 @@ $(document).ready(function() {
     world = new Universe();
 
     console.log('Universe ready for build');
-    world.generate(50, 600, 10);
-    // world.add(2, 100, 100, 0);
-    // world.add(2, 500, 500, 0);
-    // world.add(2, 500, 100, 0);
-    // world.add(3, 100, 500, 0);
-    console.log(world);
+    world.generate(10, 600, 50);
+    // world.add(10, 290, 300, 0);
+    // world.add(2, 310, 300, 0);
+    // world.add(4, 150, 200, 0);
+    // world.add(4, 250, 300, 0);
+    // world.add(4, 350, 400, 0);
+    // world.add(4, 450, 500, 0);
 
-    world.slowing = 1000;
-    world.run(10, false);
+    world.slowing = 1;
+    world.run(10, true);
 });
